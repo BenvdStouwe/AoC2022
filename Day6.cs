@@ -1,0 +1,48 @@
+namespace AoC2022;
+
+public class Day6
+{
+    [Theory]
+    [InlineData("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 7)]
+    [InlineData("bvwbjplbgvbhsrlpgdmjqwftvncz", 5)]
+    [InlineData("nppdvjthqldpwncqszvftbrmjlhg", 6)]
+    [InlineData("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 10)]
+    [InlineData("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 11)]
+    [InlineData(RealInput, 1766)]
+    public void Part1(string input, int expectedResult)
+    {
+        var result = Solve(input, 4);
+
+        Assert.Equal(expectedResult, result);
+    }
+
+    [Theory]
+    [InlineData("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 19)]
+    [InlineData("bvwbjplbgvbhsrlpgdmjqwftvncz", 23)]
+    [InlineData("nppdvjthqldpwncqszvftbrmjlhg", 23)]
+    [InlineData("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 29)]
+    [InlineData("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 26)]
+    [InlineData(RealInput, 2383)]
+    public void Part2(string input, int expectedResult)
+    {
+        var result = Solve(input, 14);
+
+        Assert.Equal(expectedResult, result);
+    }
+
+    private static int Solve(string input, short uniqueSequenceLength)
+    {
+        for (var i = 0; i < input.Length; i++)
+        {
+            var sequence = input.Skip(i).Take(uniqueSequenceLength).Distinct().ToArray();
+            if (sequence.Length == uniqueSequenceLength)
+            {
+                return input.IndexOf(string.Concat(sequence), StringComparison.Ordinal) + uniqueSequenceLength;
+            }
+        }
+
+        throw new InvalidOperationException("No unique sequence");
+    }
+
+    private const string RealInput = @"tzltzltthfthtdtstftbfbnffdjjvnvcccnznpndppsvvlnvlnvndntnllwffvwwcpwccssqbqnbbwzbwwfjjscspspfsfvvzjvvmjvjwjljbbbqtbbcqbccdqcdcpddnvnjvvqwwbrbggjllhbbzlblrrrcwwrfrmffgddfsddnqnqpnnmzzwlzwzqwqgqnngnfnvnhvvfnvvszzrbrqbqnbbrsbsvssgngwgqwqbqsbsvbbdvdfvdvbbqlqdlqdllnppwcclwlvwlwjlwwdjjjcschhhmrrnnrznzlnnwmnwnfngghngnpggmrrzrttdbdtddjhdhrrqddnhnjjntjtbtmtffwcfcnfcnfnjjfnjfjjhrhhgfgttgmttltfllfqfnqqcbbrlblrbrcrssrllhddmnddmcdddvttfdfqfmqqcncggczczdccvhcvcjvvgnnqttltcchzhjjwmmqvqtqnqbbhddcqdccnwccttgwwzssncncjjprjjpbprrndnrnrhnhrnhngnhhbjbccpmpmrppjvpjpqjjsvjjhttcclmmqzzlggtqqqgdqqbhhtmmqfmqmwmjwmjmmnsmsvsrrvpvhhtshhhmqmdqqqqlfffwgwhwjjrfjfmfrmffgzzjvzznqqwggcvcnvvcpvpjpjbpbrpbrrzhhcffqqlzzrmzrmzmzrrqdqrqnqrnrnqnrnsrrnjrrgllgqlljldjjmvvqbqhhsmsmddsfdddcmmphhtjhjzhjjjhcjjzppwhwvvdnvnvpnvnlnvnffrjjtzzdqzzngzgqghhmvvgwwqhwhlhvvfzzdpzddtbdtbtvtlvlqlllvvdvsdsslccbscsbbcggldlvvdccdscdsdzsddpggcfggnffpjpnpcncfcqqlvvszzbpbqbcqczcqzcqzqqlrlwwbgglrrbgbhhlbbsffrprtpppdwdhwhbbpssvbvnntbbfnfddmmfcfcjfftbfbdbccngcgjcjtjftjffrwwtwlwddczcnzczpzcpccrqcrczrzcrzzhnntgtqgtgztgzzcpphshwswfwqqnzngzzbpzzpqpzqznzdzmzqqjzzhnhvnnqjnnrdrcctdtppsffzvvwvbbpttsrsspsddfvvfllrtlljpjlplcctthbbgbqgbgmmpwpvvghvhfhwfwcwvwrvwrvvcgccdncddbmbmfmlffgqggrzgzhhzfzdfzfhhzdhzhjzjhhbffrtrjtthssbpspddpttrggdndsnnjwwzrwrvvmqvmvdvhvjvnnqmmhrhrzzzwttnftfddsdfsfjsjcccvhvgvgzvgzvzbvvhwhbbpccfjfllgmlggtbggdsgsmmmnznqnhqhrqhrrtthwhqqvzqvvvqgqffpvptvpvwvbvsscsnnhlnhhzrzjrjrllcffpqpbpsbbflblppqffbqqpttccdgcgdgfdfgdgjddjljpljppdspddflftllhchmcmwcwddrqqsdsswwmwwwjdjvdvwwcgcddmhhqtqvqmvvnffqppnvpphpnnshsmhmdhmdddlnlmnmsnnpttlfttnqnhqnqrnrddplplbpbdpdhppccbnbwwpwzwgwdgdnggcmmtnmnznmzmwmrmtrrjppjgjmggndgnnjzzrczzftztzgzvgvddgmdgmgpmmgjmmnrrmvmnvvhqqggsnnplnlnbbrcbbpphssnqsnspnncfchhvjjdjvjfjddbjbddhlllpdnrhtzhqpphzfbjclncdlrbtzhcwslpnstdvjslnzfrvfdlmpgpfhrqtjvqvjlqgdcjrbjtjrgvbfwjzsvrbmffnhvjqnshvdjbgwmpwlfjznngzpqbvlztnvgvjsnwvhpfwbhfsmjgwwjdrrwbtvpwtzvjfhwrmnrhdsvgpgdsfgndmffqfplsgjrsvztzlznqsrbldbmmhqmjtrzscrbwlpgztlrvllprnhzsvtnvwzmjwqhqpjqhntcrscwcdnwzpvbdczzcmzrmdwthdtszqzftcsfbwfqggpcntfrgwpmjpdzjnczwcjmdjnrqjfwqbznznmcdvzqlpqschnmcfqjjrjwfmqqftfdhdzffvshqbmrgrpvlgqcgsbsngttvcpjswdgrhbblrhjllfbzngqjzzbdwtnlnrbpftvwbmrhvcnntdrbvtrtpcsqdsrvpsgggfpwcbzhwhwmmmmmgjzgdtwnzjdwjfljghbjvjnsgshmdpztnbbrnwfvzhtzqpzttftdmcmqzlnrgncwwtpwqrgmpmwwchwhbbbblcndbsrrqtnztcmqhvdwfcswnswvhqdtqfdrhjgczqvrzqczmnpcgbwntjvlsfrzrrjtsvfzfmbwwsftwqvttpjvbggrlcspnfhwwmrhdbbhdcjvmrhppvcmtmfhszjlcjjsdqfvjttcmffwzfpmjmjzhcrqmhhwzhjlnwphvvhmrbllsvpjljthjndffrdbmdjncnmdtcwfwjdwnrdlvqsbzczlhwrtpnzfwzzwbrqpglgvrjsnsprvwszmlrjcdgzwchmcqrjdlzqfvqwwfszpptprhcfsdfcrnhvhgvcdwgnqzjtmgznltbjjqwzlljrqcmpdncshzvsmvjwlmvtwbtjcgmqfslvwcfqpljzdjmdvqjlztbsbshcwhlvzcmzljvrrhrbzwvthgtnszpcrrdwcmtdncdzlbdscfbhrlqttcfshqrsgvzhlcnvfhppdqvblsznmctftmnslwgbmbgshgwvmzpdnmqmjgqnvrwprmbzrdprrbcwnslczvzgnssjqqzdrlntrnsrgbjjcpqvnqwvnwgslchqzbphcqsbvgvwzlnsndfrhqjvtlnqpcsgswzfvhjmfgwgfvhjgzntdbztmjsbmtwlfmvvgvztvwwmqclcgctqbvljgfngcvfqlmmvqmbtrnnbhqjjndzqhvvdztjgvwgrtltfrlzrjcpgwvpqwmcwmqccjtjhhbrrqphlpljvhjzpdfcdsgzfpnzdzhfdqjsnrvmwstrmmwmlhbvrjbtnmvwcqnzqzzpwzjdnfhqwwlsvgnnjgffzcnrtbjfwllnrgppchqwnfpwpgnfbvwcbjrlscnwlswjmnrcrhtdhgpzvgtfcqzgqtwvlhrgbmjvvzhrlzfvmrdjjctvfwsgmjwbqslhmjlcvlwrdqfmbhcfrmrvqtslplwpsgrfmntmtvmvqttbspmftgqdzlcfplcvvfmmjttwqjpdtjzzsfjcprvbwdvfrpzddhwrlmsnpjzqgdlfdzvdjnjtgtfflzzvjlmnnvmglrptsnppwscznltcvzfjmwshnsqsvsjpqwsqlbwzslhgrdcbbvcjspqfntbcpwwrphgpmwbpqdcfvvtlsgpfshtcrdftsltwnbnmzfwcwlmrhlntmmnnpsdchvntcwbnmjdgwcmzzvbrhbdbmlgwppzwsqvcccdbfzfsfhtmbppnwbtjvrvjtmddhmrjdqgnmrnjjpqsgtbgcvtclzzstlpldtqbnnvqjfbjcfzblvcwhjphzcgwfljjhzzmwdcrzsssznztcwpjlbcffnlmsfjbmtvhhcljmtqdprdmdgwgpnnlmhgwpsgprfqnspmntrdjwjmrflsbfpqhzswbsrdbdhjmvtwmjjnmpllgfllzgwwmswjcmggbrvsbbhjmsdzzpbhbrlphwdsmjdzsqjfrmdmpljnwscjrhdvzqbhhvpmhwqfrrhzlncrrrzhmjdwqjcbsqjbhbdbjzpslrnnbzctnnlhqmqqbdzfbrpfgwsrdglnplpspnnqhtbhzhzgtchcbqcmmcmvlllczqbtmbstzmnlhhhbmmbtjwnbgwjbfhgvfhqlsgdnnrsgghjzjlqfwbbgztdqzbhhwhcwtjwsgstjpzcjjvqbpfpvlqfqshvfzbwmfcwfgqvgmbppfvzgzznzhsqbvzlztsnmnrbgqzbmbhlvqhfncdfcpttgzpvvzdbhvqdtqsblqvrsrnmsfbqhrpvlzffdzptzghvmbmdzjrsqzhqddqm";
+}
