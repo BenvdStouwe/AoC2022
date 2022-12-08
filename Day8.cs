@@ -15,19 +15,12 @@ public class Day8
     {
         var forrest = MapForrest(input);
 
-        var visibleTrees = 2 * forrest.Length + 2 * (forrest[0].Length - 2);
-        for (var y = 1; y < forrest.Length - 1; y++)
-        {
-            for (var x = 1; x < forrest[0].Length - 1; x++)
-            {
-                if (IsTreeVisible(forrest, x, y))
-                {
-                    visibleTrees++;
-                }
-            }
-        }
+        var boundaryTrees = 2 * forrest.Length + 2 * forrest[0].Length - 4;
+        var result = forrest[1..^1]
+            .SelectMany((r, y) => r[1..^1].Select((height, x) => (height, x: x + 1, y: y + 1)))
+            .Count(t => IsTreeVisible(forrest, t.height, t.x, t.y)) + boundaryTrees;
 
-        Assert.Equal(expectedResult, visibleTrees);
+        Assert.Equal(expectedResult, result);
     }
 
     [Theory]
@@ -49,11 +42,11 @@ public class Day8
             .Select(r => r.Select(Convert.ToInt16).ToArray())
             .ToArray();
 
-    private static bool IsTreeVisible(short[][] forrest, int x, int y) =>
-        forrest[y][..x].Max() < forrest[y][x] ||
-        forrest[y][(x + 1)..].Max() < forrest[y][x] ||
-        forrest[..y].Select(c => c[x]).Max() < forrest[y][x] ||
-        forrest[(y + 1)..].Select(c => c[x]).Max() < forrest[y][x];
+    private static bool IsTreeVisible(short[][] forrest, short height, int x, int y) =>
+        forrest[y][..x].Max() < height ||
+        forrest[y][(x + 1)..].Max() < height ||
+        forrest[..y].Select(c => c[x]).Max() < height ||
+        forrest[(y + 1)..].Select(c => c[x]).Max() < height;
 
     private static int DetermineScore(short[][] forrest, (short height, int x, int y) tree)
     {
