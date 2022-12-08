@@ -20,7 +20,7 @@ public class Day8
         {
             for (var x = 1; x < forrest[0].Length - 1; x++)
             {
-                if (Visible(forrest, x, y))
+                if (IsTreeVisible(forrest, x, y))
                 {
                     visibleTrees++;
                 }
@@ -38,67 +38,40 @@ public class Day8
         var forrest = MapForrest(input);
 
         var result = forrest[1..^1].SelectMany((r, y) => r[1..^1].Select((height, x) => (height, x + 1, y + 1)))
-            .Select(t => (t, DetermineScore(forrest, t)))
-            .Max(t => t.Item2);
+            .Select(t => DetermineScore(forrest, t))
+            .Max(t => t);
 
         Assert.Equal(expectedResult, result);
     }
 
+    private static short[][] MapForrest(string input) =>
+        input.Split(Environment.NewLine)
+            .Select(r => r.Select(Convert.ToInt16).ToArray())
+            .ToArray();
+
+    private static bool IsTreeVisible(short[][] forrest, int x, int y) =>
+        forrest[y][..x].Max() < forrest[y][x] ||
+        forrest[y][(x + 1)..].Max() < forrest[y][x] ||
+        forrest[..y].Select(c => c[x]).Max() < forrest[y][x] ||
+        forrest[(y + 1)..].Select(c => c[x]).Max() < forrest[y][x];
+
     private static int DetermineScore(short[][] forrest, (short height, int x, int y) tree)
     {
         var (height, x, y) = tree;
-        var distanceToLeft = forrest[y][..x]
-            .Reverse()
-            .Select((h, i) => (h, i: i + 1))
-            .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => x);
-        var distanceToRight = forrest[y][(x + 1)..]
-            .Select((h, i) => (h, i: i + 1))
-            .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => forrest[0].Length - x - 1);
-        var distanceToTop = forrest[..y]
-            .Reverse()
-            .Select((h, i) => (h: h[x], i: i + 1))
-            .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => y);
-        var distanceToBottom = forrest[(y + 1)..]
-            .Select((h, i) => (h: h[x], i: i + 1))
-            .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => forrest.Length - y - 1);
-        return distanceToLeft * distanceToRight * distanceToTop * distanceToBottom;
-    }
-
-    private static short[][] MapForrest(string input)
-    {
-        return input.Split(Environment.NewLine)
-            .Select(r => r.Select(Convert.ToInt16).ToArray())
-            .ToArray();
-    }
-
-    private static bool Visible(short[][] forrest, int x, int y)
-    {
-        var treeLength = forrest[y][x];
-        var treesToLeft = forrest[y][..x];
-        if (treesToLeft.Max() < treeLength)
-        {
-            return true;
-        }
-
-        var treesToRight = forrest[y][(x + 1)..];
-        if (treesToRight.Max() < treeLength)
-        {
-            return true;
-        }
-
-        var treesToTop = forrest[..y].Select(c => c[x]);
-        if (treesToTop.Max() < treeLength)
-        {
-            return true;
-        }
-
-        var treesToBottom = forrest[(y + 1)..].Select(c => c[x]);
-        if (treesToBottom.Max() < treeLength)
-        {
-            return true;
-        }
-
-        return false;
+        return forrest[y][..x]
+                   .Reverse()
+                   .Select((h, i) => (h, i: i + 1))
+                   .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => x)
+               * forrest[y][(x + 1)..]
+                   .Select((h, i) => (h, i: i + 1))
+                   .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => forrest[0].Length - x - 1)
+               * forrest[..y]
+                   .Reverse()
+                   .Select((h, i) => (h: h[x], i: i + 1))
+                   .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => y)
+               * forrest[(y + 1)..]
+                   .Select((h, i) => (h: h[x], i: i + 1))
+                   .FirstOrDefault(t => t.h >= height).i.WhenDefault(() => forrest.Length - y - 1);
     }
 
     private const string RealInput =
