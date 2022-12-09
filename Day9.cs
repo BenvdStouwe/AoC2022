@@ -25,30 +25,9 @@ U 20";
     [InlineData(RealInput, 6243)]
     public void Part1(string input, int expectedResult)
     {
-        var headLocation = (x: 0, y: 0);
-        var tailLocation = (x: 0, y: 0);
-        var result = new HashSet<(int x, int y)> { tailLocation };
-        foreach (var (direction, amount) in ParseInput(input))
-        {
-            for (var i = 1; i <= amount; i++)
-            {
-                headLocation = CalculateNewLocation(direction, headLocation);
-                var xDiff = Math.Abs(headLocation.x - tailLocation.x);
-                var yDiff = Math.Abs(headLocation.y - tailLocation.y);
-                if (xDiff + yDiff > 2)
-                {
-                    tailLocation = ConsolidateLocations(headLocation, tailLocation, xDiff, yDiff);
-                    result.Add(tailLocation);
-                }
-                else if (xDiff == 2 || yDiff == 2)
-                {
-                    tailLocation = CalculateNewLocation(direction, tailLocation);
-                    result.Add(tailLocation);
-                }
-            }
-        }
+        var count = Solve(input, 2);
 
-        Assert.Equal(expectedResult, result.Count);
+        Assert.Equal(expectedResult, count);
     }
 
     [Theory]
@@ -57,15 +36,16 @@ U 20";
     [InlineData(RealInput, 2630)]
     public void Part2(string input, int expectedResult)
     {
-        var count = Solve(input, 9);
+        var count = Solve(input, 10);
 
         Assert.Equal(expectedResult, count);
     }
 
-    private static int Solve(string input, int ropeLength)
+    private static int Solve(string input, int knots)
     {
-        var locations = Enumerable.Range(0, ropeLength + 1).Select(_ => (x: 0, y: 0)).ToArray();
-        var result = new HashSet<(int x, int y)> { locations[ropeLength] };
+        var locations = Enumerable.Range(0, knots).Select(_ => (x: 0, y: 0)).ToArray();
+        var trackingKnot = knots - 1;
+        var result = new HashSet<(int x, int y)> { locations[trackingKnot] };
         foreach (var (direction, amount) in ParseInput(input))
         {
             for (var i = 1; i <= amount; i++)
@@ -78,7 +58,7 @@ U 20";
                     if (xDiff + yDiff > 2)
                     {
                         locations[j] = ConsolidateLocations(locations[j - 1], locations[j], xDiff, yDiff);
-                        if (j == ropeLength)
+                        if (j == trackingKnot)
                         {
                             result.Add(locations[j]);
                         }
@@ -86,7 +66,7 @@ U 20";
                     else if (xDiff == 2)
                     {
                         locations[j] = (Math.Max(locations[j].x, locations[j - 1].x) - 1, locations[j].y);
-                        if (j == ropeLength)
+                        if (j == trackingKnot)
                         {
                             result.Add(locations[j]);
                         }
@@ -94,7 +74,7 @@ U 20";
                     else if (yDiff == 2)
                     {
                         locations[j] = (locations[j].x, Math.Max(locations[j].y, locations[j - 1].y) - 1);
-                        if (j == ropeLength)
+                        if (j == trackingKnot)
                         {
                             result.Add(locations[j]);
                         }
