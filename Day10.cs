@@ -153,39 +153,18 @@ noop";
 
     [Theory]
     [InlineData(TestInput, 13140)]
-    [InlineData(RealInput, 234)]
+    [InlineData(RealInput, 16880)]
     public void Test1(string input, int expectedResult)
     {
-        var commands = input.Split(Environment.NewLine);
-        var cycle = 1;
-        var register = 1;
-        var results = new List<int>();
-        for (int i = 0; i < commands.Length; i++)
+        int[] result = GetRegisterValues(input);
+
+        var total = result[20] * 20;
+        for (var x = 60; x < 241; x += 40)
         {
-            string command = commands[i];
-            // if (i > 1 && commands[i - 1].StartsWith('n') && (cycle - 20) % 40 == 0)
-            if ((cycle - 20) % 40 == 0 && i > 1)
-            {
-                results.Add(register * cycle);
-            }
-            if (command.StartsWith('n'))
-            {
-                cycle++;
-                continue;
-            }
-
-            if ((cycle - 19) % 40 == 0 && i > 1)
-            {
-                results.Add(register * (cycle + 1));
-            }
-
-            register += int.Parse(command.Split(' ')[1]);
-            cycle += 2;
+            total += result[x] * x;
         }
 
-        Console.WriteLine(string.Join(Environment.NewLine, results));
-
-        Assert.Equal(expectedResult, results.Sum());
+        Assert.Equal(expectedResult, total);
     }
 
     [Theory]
@@ -198,35 +177,48 @@ noop";
     ######......######......######......####
     #######.......#######.......#######.....
     """)]
-    // [InlineData(RealInput, "DEF")]
+    [InlineData(RealInput, 
+    """
+    ###..#..#..##..####..##....##.###..###..
+    #..#.#.#..#..#....#.#..#....#.#..#.#..#.
+    #..#.##...#..#...#..#..#....#.###..#..#.
+    ###..#.#..####..#...####....#.#..#.###..
+    #.#..#.#..#..#.#....#..#.#..#.#..#.#.#..
+    #..#.#..#.#..#.####.#..#..##..###..#..#.
+    """)]
     public void Test2(string input, string expectedResult)
     {
-        var commands = input.Split(Environment.NewLine)
-            .Aggregate((result: new int[241], cycle: 1, register: 1), (r, l) =>
-            {
-                if (l.StartsWith('n'))
-                {
-                    r.cycle++;
-                    return r;
-                }
-                else
-                {
-                    r.result[r.cycle + 1] = r.register;
-                    r.register += int.Parse(l.Split(' ')[1]);
-                    r.cycle += 2;
-                }
+        var register = GetRegisterValues(input);
+        var screen = Enumerable.Range(0, 6).Select(_ => new bool?[40]).ToArray();
 
-                r.result[r.cycle - 1] = r.register;
-
-                return r;
-            });
-        var screen = Enumerable.Range(0, 6).Select(_ => new bool[40]).ToArray();
+        for (var i = 0; i < register.Length - 1; i++)
+        {
+            var column = i % 40;
+            int registerValue = register[i + 1];
+            screen[(i - column) / 40][column] = registerValue - 1 <= column && column <= registerValue + 1;
+        }
 
         var result = string.Join(Environment.NewLine, screen.Select(l =>
-                string.Join("", l.Select(c => c ? '#' : '.'))));
+                string.Join("", l.Select(c => c is null ? '?' : c.Value ? '#' : '.'))));
 
         Assert.Equal(expectedResult, result);
     }
+
+    private static int[] GetRegisterValues(string input) =>
+        input.Split(Environment.NewLine)
+            .Aggregate((register: new int[241], cycle: 0, registerValue: 1), (a, l) =>
+            {
+                a.cycle += 1;
+                a.register[a.cycle] = a.registerValue;
+                if (!l.StartsWith('n'))
+                {
+                    a.cycle += 1;
+                    a.register[a.cycle] = a.registerValue;
+                    a.registerValue += short.Parse(l.Split(' ')[1]);
+                }
+
+                return a;
+            }).register;
 
     private const string RealInput = @"noop
 noop
